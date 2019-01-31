@@ -1,3 +1,4 @@
+
 /*----------------------------------------------------------------------------*/
 /* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */
@@ -22,11 +23,13 @@ import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoSource;
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.*;
 import edu.wpi.first.vision.VisionPipeline;
 import edu.wpi.first.vision.VisionThread;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.imgproc.Imgproc;
 
 /*
    JSON format:
@@ -196,7 +199,7 @@ public final class Main {
 
     return camera;
   }
-
+  public static int center = 0;
   /**
    * Main.
    */
@@ -219,6 +222,9 @@ public final class Main {
       System.out.println("Setting up NetworkTables client for team " + team);
       ntinst.startClientTeam(team);
     }
+    NetworkTableEntry x;
+    NetworkTable visionTable = ntinst.getTable("visionPost");
+    x = visionTable.getEntry("X");
 
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
@@ -232,6 +238,9 @@ public final class Main {
       VisionThread visionThread = new VisionThread(cameras.get(0),
               new RedFilter(), pipeline -> {
         pipeline.process(inputImage);
+        //Rect r = Imgproc.boundingRect(inputImage);
+       center = 2;//r.height;
+        x.setDouble((int)center);
       });
       /* something like this for GRIP:
       VisionThread visionThread = new VisionThread(cameras.get(0),
