@@ -226,7 +226,7 @@ public final class Main {
     if (!readConfig()) {
       return;
     }
-Mat imageFrames = new Mat();
+    Mat imageFrames = new Mat();
     // start NetworkTables
     NetworkTableInstance ntinst = NetworkTableInstance.getDefault();
     if (server) {
@@ -254,12 +254,6 @@ Mat imageFrames = new Mat();
           centerValue.setNumber(r.x);
         }
       });
-      /* something like this for GRIP:
-      VisionThread visionThread = new VisionThread(cameras.get(0),
-              new GripPipeline(), pipeline -> {
-        ...
-      });
-       */
      visionThread.start();
     }
 
