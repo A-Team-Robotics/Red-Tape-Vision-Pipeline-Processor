@@ -226,7 +226,7 @@ public final class Main {
     if (!readConfig()) {
       return;
     }
-    Mat imageFrames = new Mat();
+    //Mat imageFrames = new Mat();
     // start NetworkTables
     NetworkTableInstance ntinst = NetworkTableInstance.getDefault();
     if (server) {
@@ -238,8 +238,13 @@ public final class Main {
     }
     NetworkTable table = ntinst.getTable("videoInfo");
     NetworkTableEntry centerValue;
+    NetworkTableEntry size;
+    NetworkTableEntry height;
+    NetworkTableEntry width;
     centerValue = table.getEntry("CenterValue");
-
+    size = table.getEntry("Size");
+    height = table.getEntry("Height");
+    width = table.getEntry("Width");
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
     for (CameraConfig cameraConfig : cameraConfigs) {
@@ -251,7 +256,10 @@ public final class Main {
               new RedTape(), pipeline -> {
         if (!pipeline.filterContoursOutput().isEmpty()) {
           Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
-          centerValue.setNumber(r.x);
+          centerValue.setNumber((r.x + (r.width / 2)));
+          size.setString(""+r.size());
+          size.setNumber(r.height);
+          size.setNumber(r.width);
         }
       });
      visionThread.start();
