@@ -240,7 +240,6 @@ public final class Main {
     if (cameras.size() >= 1) {
       VisionThread visionThread = new VisionThread(cameras.get(0),
               new RedTape(), pipeline -> {
-        pipeline.process(inputImage);
         Rect r = Imgproc.boundingRect(inputImage);
         centerX = r.x + (r.width / 2);
       });
