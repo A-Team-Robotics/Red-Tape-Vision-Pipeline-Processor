@@ -28,6 +28,8 @@ import edu.wpi.first.vision.VisionPipeline;
 import edu.wpi.first.vision.VisionThread;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.imgproc.Imgproc;
 
 /*
    JSON format:
@@ -65,8 +67,10 @@ import org.opencv.core.Mat;
  */
 
 public final class Main {
+  private static double centerX = 0.0;
+	private static double distance = 0.0;
   private static String configFile = "/boot/frc.json";
-
+ 
   @SuppressWarnings("MemberName")
   public static class CameraConfig {
     public String name;
@@ -230,22 +234,16 @@ public final class Main {
       cameras.add(startCamera(cameraConfig));
     }
 
+    
     Mat inputImage = new Mat();
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
       VisionThread visionThread = new VisionThread(cameras.get(0),
-              new RedFilter(), pipeline -> {
+              new RedTape(), pipeline -> {
         pipeline.process(inputImage);
-        //Rect r = Imgproc.boundingRect(inputImage);
-       center = 2;//r.height;
-        x.setDouble((int)center);
+        Rect r = Imgproc.boundingRect(inputImage);
+        centerX = r.x + (r.width / 2);
       });
-      /* something like this for GRIP:
-      VisionThread visionThread = new VisionThread(cameras.get(0),
-              new GripPipeline(), pipeline -> {
-        ...
-      });
-       */
       visionThread.start();
     }
 
