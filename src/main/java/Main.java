@@ -242,6 +242,7 @@ public final class Main {
               new RedTape(), pipeline -> {
         Rect r = Imgproc.boundingRect(inputImage);
         centerX = r.x + (r.width / 2);
+	x.set("12");
       });
       visionThread.start();
     }
