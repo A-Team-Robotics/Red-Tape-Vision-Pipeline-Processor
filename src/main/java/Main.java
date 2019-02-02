@@ -239,12 +239,14 @@ public final class Main {
     NetworkTable table = ntinst.getTable("videoInfo");
     NetworkTableEntry centerValue;
     NetworkTableEntry size;
-    NetworkTableEntry height;
-    NetworkTableEntry width;
+    NetworkTableEntry centerValue2;
+    NetworkTableEntry size2;
+    NetworkTableEntry followValue;
     centerValue = table.getEntry("CenterValue");
     size = table.getEntry("Size");
-    height = table.getEntry("Height");
-    width = table.getEntry("Width");
+    centerValue2 = table.getEntry("CenterValue2");
+    size2 = table.getEntry("Size2");
+    followValue = table.getEntry("FollowValue");
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
     for (CameraConfig cameraConfig : cameraConfigs) {
@@ -256,10 +258,15 @@ public final class Main {
               new RedTape(), pipeline -> {
         if (!pipeline.filterContoursOutput().isEmpty()) {
           Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
+          //Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
           centerValue.setNumber((r.x + (r.width / 2)));
           size.setString(""+r.size());
-          size.setNumber(r.height);
-          size.setNumber(r.width);
+          followValue.setValue((r.x + (r.width / 2))-(160)/2);
+        }else {
+          size2.setString("");
+          size.setString("");
+          centerValue.setNumber(0);
+          centerValue2.setNumber(0);
         }
       });
      visionThread.start();
