@@ -71,7 +71,6 @@ import org.opencv.imgproc.Imgproc;
 public final class Main {
   private static String configFile = "/boot/frc.json";
 
-  @SuppressWarnings("MemberName")
   public static class CameraConfig {
     public String name;
     public String path;
@@ -127,7 +126,7 @@ public final class Main {
   /**
    * Read configuration file.
    */
-  @SuppressWarnings("PMD.CyclomaticComplexity")
+  //@SuppressWarnings("PMD.CyclomaticComplexity")
   public static boolean readConfig() {
     // parse file
     JsonElement top;
@@ -238,15 +237,17 @@ public final class Main {
     }
     NetworkTable table = ntinst.getTable("videoInfo");
     NetworkTableEntry centerValue;
-    NetworkTableEntry size;
+    NetworkTableEntry boxSize;
     NetworkTableEntry centerValue2;
-    NetworkTableEntry size2;
-    NetworkTableEntry followValue;
+    //NetworkTableEntry boxsize2;
+    NetworkTableEntry xOffSet;
+    //NetworkTableEntry xOffSet2;
     centerValue = table.getEntry("CenterValue");
-    size = table.getEntry("Size");
+    boxSize = table.getEntry("Size");
     centerValue2 = table.getEntry("CenterValue2");
-    size2 = table.getEntry("Size2");
-    followValue = table.getEntry("FollowValue");
+    //boxsize2 = table.getEntry("Size2");
+    xOffSet = table.getEntry("XOffSet");
+    //xOffSet2 = table.getEntry("XOffSet");
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
     for (CameraConfig cameraConfig : cameraConfigs) {
@@ -260,13 +261,14 @@ public final class Main {
           Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
           //Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
           centerValue.setNumber((r.x + (r.width / 2)));
-          size.setString(""+r.size());
-          followValue.setValue((r.x + (r.width / 2))-(160)/2);
+          boxSize.setString(""+r.size());
+          xOffSet.setValue((r.x + (r.width / 2))-(160)/2);
         }else {
-          size2.setString("");
-          size.setString("");
+          //boxSize2.setString("");
+          boxSize.setString("");
           centerValue.setNumber(0);
           centerValue2.setNumber(0);
+          xOffSet.setValue(0);
         }
       });
      visionThread.start();
