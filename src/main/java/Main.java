@@ -23,7 +23,9 @@ import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoSource;
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.networktables.*;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.vision.VisionPipeline;
 import edu.wpi.first.vision.VisionThread;
 
@@ -67,10 +69,8 @@ import org.opencv.imgproc.Imgproc;
  */
 
 public final class Main {
-  private static double centerX = 0.0;
-	private static double distance = 0.0;
   private static String configFile = "/boot/frc.json";
- 
+
   @SuppressWarnings("MemberName")
   public static class CameraConfig {
     public String name;
@@ -201,7 +201,19 @@ public final class Main {
 
     return camera;
   }
-  public static int center = 0;
+
+  /**
+   * Example pipeline.
+   */
+  public static class MyPipeline implements VisionPipeline {
+    public int val;
+
+    @Override
+    public void process(Mat mat) {
+      val += 1;
+    }
+  }
+
   /**
    * Main.
    */
@@ -214,7 +226,7 @@ public final class Main {
     if (!readConfig()) {
       return;
     }
-
+Mat imageFrames = new Mat();
     // start NetworkTables
     NetworkTableInstance ntinst = NetworkTableInstance.getDefault();
     if (server) {
@@ -224,27 +236,31 @@ public final class Main {
       System.out.println("Setting up NetworkTables client for team " + team);
       ntinst.startClientTeam(team);
     }
-    NetworkTableEntry x;
-    NetworkTable visionTable = ntinst.getTable("visionPost");
-    x = visionTable.getEntry("X");
+    NetworkTable table = ntinst.getTable("videoInfo");
+    NetworkTableEntry centerValue;
+    centerValue = table.getEntry("CenterValue");
 
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
     for (CameraConfig cameraConfig : cameraConfigs) {
       cameras.add(startCamera(cameraConfig));
     }
-
-    
-    Mat inputImage = new Mat();
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
       VisionThread visionThread = new VisionThread(cameras.get(0),
               new RedTape(), pipeline -> {
-        Rect r = Imgproc.boundingRect(inputImage);
-        centerX = r.x + (r.width / 2);
-	x.set("12");
+        if (!pipeline.filterContoursOutput().isEmpty()) {
+          Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
+          centerValue.setNumber(r.x);
+        }
       });
-      visionThread.start();
+      /* something like this for GRIP:
+      VisionThread visionThread = new VisionThread(cameras.get(0),
+              new GripPipeline(), pipeline -> {
+        ...
+      });
+       */
+     visionThread.start();
     }
 
     // loop forever
