@@ -235,19 +235,18 @@ public final class Main {
       System.out.println("Setting up NetworkTables client for team " + team);
       ntinst.startClientTeam(team);
     }
+
+    //Network Table Posting
     NetworkTable table = ntinst.getTable("videoInfo");
-    NetworkTableEntry centerValue;
-    NetworkTableEntry boxSize;
-    NetworkTableEntry centerValue2;
-    //NetworkTableEntry boxsize2;
+    NetworkTableEntry distance;
     NetworkTableEntry xOffSet;
-    //NetworkTableEntry xOffSet2;
-    centerValue = table.getEntry("CenterValue");
-    boxSize = table.getEntry("Size");
-    centerValue2 = table.getEntry("CenterValue2");
-    //boxsize2 = table.getEntry("Size2");
+    NetworkTableEntry xOffSet2;
+    NetworkTableEntry targetDisplacement;
     xOffSet = table.getEntry("XOffSet");
-    //xOffSet2 = table.getEntry("XOffSet");
+    xOffSet2 = table.getEntry("XOffSet2");
+    targetDisplacement = table.getEntry("TargetDisplacement");
+    distance = table.getEntry("Target Distance");
+
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
     for (CameraConfig cameraConfig : cameraConfigs) {
@@ -257,18 +256,18 @@ public final class Main {
     if (cameras.size() >= 1) {
       VisionThread visionThread = new VisionThread(cameras.get(0),
               new RedTape(), pipeline -> {
-        if (!pipeline.filterContoursOutput().isEmpty()) {
+        if (!pipeline.filterContoursOutput().isEmpty() & pipeline.filterContoursOutput().size()==2) {
           Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
-          //Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
-          centerValue.setNumber((r.x + (r.width / 2)));
-          boxSize.setString(""+r.size());
+          Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
+          targetDisplacement.setValue(((r.x + (r.width / 2))-(160)/2)+(r2.x + (r2.width / 2))-(160)/2);
           xOffSet.setValue((r.x + (r.width / 2))-(160)/2);
+          xOffSet2.setValue((r.x + (r.width / 2))-(160)/2);
+          distance.setValue(Math.tan(60)*r.width);
         }else {
-          //boxSize2.setString("");
-          boxSize.setString("");
-          centerValue.setNumber(0);
-          centerValue2.setNumber(0);
           xOffSet.setValue(0);
+          xOffSet2.setValue(0);
+          targetDisplacement.setValue(0);
+          distance.setValue(-1);
         }
       });
      visionThread.start();
