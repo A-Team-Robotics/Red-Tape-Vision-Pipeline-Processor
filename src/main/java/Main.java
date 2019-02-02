@@ -243,6 +243,7 @@ public final class Main {
         pipeline.process(inputImage);
         Rect r = Imgproc.boundingRect(inputImage);
         centerX = r.x + (r.width / 2);
+	x.set("12");
       });
       visionThread.start();
     }
