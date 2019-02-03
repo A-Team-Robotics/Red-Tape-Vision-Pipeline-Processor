@@ -28,6 +28,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.vision.VisionPipeline;
 import edu.wpi.first.vision.VisionThread;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
@@ -255,15 +256,17 @@ public final class Main {
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
       VisionThread visionThread = new VisionThread(cameras.get(0),
-              new RedTape(), pipeline -> {
+              new RedTapeTwo(), pipeline -> {
         if (!pipeline.filterContoursOutput().isEmpty() & pipeline.filterContoursOutput().size()==2) {
           Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
           Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
           targetDisplacement.setValue(((r.x + (r.width / 2))-(160)/2)+(r2.x + (r2.width / 2))-(160)/2);
           xOffSet.setValue((r.x + (r.width / 2))-(160)/2);
-          xOffSet2.setValue((r.x + (r.width / 2))-(160)/2);
+          xOffSet2.setValue((r2.x + (r2.width / 2))-(160)/2);
           distance.setValue(Math.tan(60)*r.width);
+          SmartDashboard.putString("Found", "Rect Found");
         }else {
+          SmartDashboard.putString("Found", "Not Found");
           xOffSet.setValue(0);
           xOffSet2.setValue(0);
           targetDisplacement.setValue(0);
