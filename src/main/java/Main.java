@@ -71,6 +71,7 @@ import org.opencv.imgproc.Imgproc;
 
 public final class Main {
   private static String configFile = "/boot/frc.json";
+  protected static int CameraWidth;
 
   public static class CameraConfig {
     public String name;
@@ -106,7 +107,8 @@ public final class Main {
       return false;
     }
     cam.name = nameElement.getAsString();
-
+    JsonElement CameraWidthElement = config.get("width");
+    CameraWidth = CameraWidthElement.getAsInt();
     // path
     JsonElement pathElement = config.get("path");
     if (pathElement == null) {
@@ -119,7 +121,7 @@ public final class Main {
     cam.streamConfig = config.get("stream");
 
     cam.config = config;
-
+    
     cameraConfigs.add(cam);
     return true;
   }
@@ -252,16 +254,17 @@ public final class Main {
     List<VideoSource> cameras = new ArrayList<>();
     for (CameraConfig cameraConfig : cameraConfigs) {
       cameras.add(startCamera(cameraConfig));
+      System.out.println(CameraWidth);
     }
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
       VisionThread visionThread = new VisionThread(cameras.get(0),
-              new RedTapeTwo(), pipeline -> {
+              new RedTape(), pipeline -> {
         if (!pipeline.filterContoursOutput().isEmpty() & pipeline.filterContoursOutput().size()==2) {
           Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
           Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
           targetDisplacement.setValue(((r.x + (r.width / 2))-(160)/2)+(r2.x + (r2.width / 2))-(160)/2);
-          xOffSet.setValue((r.x + (r.width / 2))-(160)/2);
+          xOffSet.setValue((r.x + (r.width / 2))-(160/2));
           xOffSet2.setValue((r2.x + (r2.width / 2))-(160)/2);
           distance.setValue(Math.tan(60)*r.width);
           SmartDashboard.putString("Found", "Rect Found");
