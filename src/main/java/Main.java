@@ -72,6 +72,7 @@ import org.opencv.imgproc.Imgproc;
 public final class Main {
   private static String configFile = "/boot/frc.json";
   protected static int CameraWidth;
+  protected static int CameraHeight;
 
   public static class CameraConfig {
     public String name;
@@ -109,6 +110,9 @@ public final class Main {
     cam.name = nameElement.getAsString();
     JsonElement CameraWidthElement = config.get("width");
     CameraWidth = CameraWidthElement.getAsInt();
+
+    JsonElement CameraHeightElement = config.get("height");
+    CameraHeight = CameraHeightElement.getAsInt();
     // path
     JsonElement pathElement = config.get("path");
     if (pathElement == null) {
@@ -242,9 +246,16 @@ public final class Main {
     //Network Table Posting
     NetworkTable table = ntinst.getTable("videoInfo");
     NetworkTableEntry distance;
+    NetworkTableEntry xOffSet;
+    NetworkTableEntry xOffSet2;
     NetworkTableEntry targetDisplacement;
+    xOffSet = table.getEntry("XOffSet");
+    xOffSet2 = table.getEntry("XOffSet2");
     targetDisplacement = table.getEntry("TargetDisplacement");
-    distance = table.getEntry("Target Distance");
+    distance = table.getEntry("Target Distance Width");
+    NetworkTableEntry distanceHeight = table.getEntry("Target Distance Height");
+    NetworkTableEntry AvgDistance = table.getEntry("Avg. Distance");
+    NetworkTableEntry AvgDistanceInCm = table.getEntry("Avg. Distance in cm");
 
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
@@ -260,10 +271,17 @@ public final class Main {
           Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
           Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
           targetDisplacement.setValue(((r.x + (r.width / 2))-(CameraWidth)/2)+(r2.x + (r2.width / 2))-(CameraWidth)/2);
-          distance.setValue(Math.tan(60)*(r.width*2));
-          SmartDashboard.putString("Object Found", "Yes");
+          xOffSet.setValue((r.x + (r.width / 2))-(CameraWidth/2));
+          xOffSet2.setValue((r2.x + (r2.width / 2))-(CameraWidth)/2);
+          distance.setValue((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5)));
+          distanceHeight.setValue((5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)));
+          AvgDistance.setValue(((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2);
+          AvgDistanceInCm.setValue((((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2)*30.4);
+          SmartDashboard.putString("Found", "Rect Found");
         }else {
-          SmartDashboard.putString("Object Found", "No");
+          SmartDashboard.putString("Found", "Not Found");
+          xOffSet.setValue(0);
+          xOffSet2.setValue(0);
           targetDisplacement.setValue(0);
           distance.setValue(-1);
         }
