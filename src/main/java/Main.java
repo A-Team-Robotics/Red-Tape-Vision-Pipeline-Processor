@@ -242,11 +242,7 @@ public final class Main {
     //Network Table Posting
     NetworkTable table = ntinst.getTable("videoInfo");
     NetworkTableEntry distance;
-    NetworkTableEntry xOffSet;
-    NetworkTableEntry xOffSet2;
     NetworkTableEntry targetDisplacement;
-    xOffSet = table.getEntry("XOffSet");
-    xOffSet2 = table.getEntry("XOffSet2");
     targetDisplacement = table.getEntry("TargetDisplacement");
     distance = table.getEntry("Target Distance");
 
@@ -264,14 +260,10 @@ public final class Main {
           Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
           Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
           targetDisplacement.setValue(((r.x + (r.width / 2))-(CameraWidth)/2)+(r2.x + (r2.width / 2))-(CameraWidth)/2);
-          xOffSet.setValue((r.x + (r.width / 2))-(CameraWidth/2));
-          xOffSet2.setValue((r2.x + (r2.width / 2))-(CameraWidth)/2);
           distance.setValue(Math.tan(60)*(r.width*2));
-          SmartDashboard.putString("Found", "Rect Found");
+          SmartDashboard.putString("Object Found", "Yes");
         }else {
-          SmartDashboard.putString("Found", "Not Found");
-          xOffSet.setValue(0);
-          xOffSet2.setValue(0);
+          SmartDashboard.putString("Object Found", "No");
           targetDisplacement.setValue(0);
           distance.setValue(-1);
         }
