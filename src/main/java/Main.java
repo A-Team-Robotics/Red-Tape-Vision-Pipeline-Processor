@@ -246,13 +246,13 @@ public final class Main {
     //Network Table Posting
     NetworkTable table = ntinst.getTable("videoInfo");
     NetworkTableEntry distance;
-    NetworkTableEntry xOffSet;
-    NetworkTableEntry xOffSet2;
+
     NetworkTableEntry targetDisplacement;
-    xOffSet = table.getEntry("XOffSet");
-    xOffSet2 = table.getEntry("XOffSet2");
+    NetworkTableEntry inputsToTheDriveX;
+
     targetDisplacement = table.getEntry("TargetDisplacement");
     distance = table.getEntry("Target Distance Width");
+    inputsToTheDriveX = table.getEntry("Input to the Drive");
     NetworkTableEntry distanceHeight = table.getEntry("Target Distance Height");
     NetworkTableEntry AvgDistance = table.getEntry("Avg. Distance");
     NetworkTableEntry AvgDistanceInCm = table.getEntry("Avg. Distance in cm");
@@ -271,17 +271,14 @@ public final class Main {
           Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
           Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
           targetDisplacement.setValue(((r.x + (r.width / 2))-(CameraWidth)/2)+(r2.x + (r2.width / 2))-(CameraWidth)/2);
-          xOffSet.setValue((r.x + (r.width / 2))-(CameraWidth/2));
-          xOffSet2.setValue((r2.x + (r2.width / 2))-(CameraWidth)/2);
-          distance.setValue((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5)));
-          distanceHeight.setValue((5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)));
-          AvgDistance.setValue(((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2);
-          AvgDistanceInCm.setValue((((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2)*30.4);
+          inputsToTheDriveX.setValue(r.width-(CameraWidth/2)/(CameraWidth/2));//added New
+          distance.setValue((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5/2)));
+          distanceHeight.setValue((5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5/2)));
+          AvgDistance.setValue(((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5/2))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2);
+          AvgDistanceInCm.setValue((((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5/2))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2)*30.4);
           SmartDashboard.putString("Found", "Rect Found");
         }else {
           SmartDashboard.putString("Found", "Not Found");
-          xOffSet.setValue(0);
-          xOffSet2.setValue(0);
           targetDisplacement.setValue(0);
           distance.setValue(-1);
         }
