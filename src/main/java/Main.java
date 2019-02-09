@@ -262,6 +262,13 @@ public final class Main {
     NetworkTable table = ntinst.getTable("videoInfo");
     NetworkTableEntry distance;
     NetworkTableEntry targetDisplacement;
+<<<<<<< HEAD
+=======
+    NetworkTableEntry inputsToTheDriveX;
+    targetDisplacement = table.getEntry("TargetDisplacement");
+    distance = table.getEntry("Target Distance Width");
+    inputsToTheDriveX = table.getEntry("Input to the Drive");
+>>>>>>> 904180f02e46b41a203ccd9edd7ba61c437f554d
     NetworkTableEntry distanceHeight = table.getEntry("Target Distance Height");
     NetworkTableEntry AvgDistance = table.getEntry("Avg. Distance");
     NetworkTableEntry AvgDistanceInCm = table.getEntry("Avg. Distance in cm");
@@ -286,6 +293,10 @@ public final class Main {
           Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
           Rect r2 = Imgproc.boundingRect(pipeline.findContoursOutput().get(1));
           targetDisplacement.setValue(((r.x + (r.width / 2))-(CameraWidth)/2)+(r2.x + (r2.width / 2))-(CameraWidth)/2);
+<<<<<<< HEAD
+=======
+          inputsToTheDriveX.setValue(r.width-(CameraWidth/2)/(CameraWidth/2));//added New
+>>>>>>> 904180f02e46b41a203ccd9edd7ba61c437f554d
           distance.setValue((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5/2)));
           distanceHeight.setValue((5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5/2)));
           AvgDistance.setValue(((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5/2))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2);
