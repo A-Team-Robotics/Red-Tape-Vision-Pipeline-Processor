@@ -7,6 +7,7 @@
 /*----------------------------------------------------------------------------*/
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -19,8 +20,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.VideoMode;
+import edu.wpi.cscore.VideoSink;
 import edu.wpi.cscore.VideoSource;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTable;
@@ -73,6 +78,8 @@ public final class Main {
   private static String configFile = "/boot/frc.json";
   protected static int CameraWidth;
   protected static int CameraHeight;
+  protected static int CameraFps;
+  //protected static int CamPixFormat;
 
   public static class CameraConfig {
     public String name;
@@ -113,6 +120,12 @@ public final class Main {
 
     JsonElement CameraHeightElement = config.get("height");
     CameraHeight = CameraHeightElement.getAsInt();
+
+    JsonElement CameraFPSElement = config.get("fps");
+    CameraFps = CameraFPSElement.getAsInt();
+
+    //JsonElement CameraPixFormatElement = config.get("pixel format");
+    //CamPixFormat = CameraPixFormatElement.getAsInt();
     // path
     JsonElement pathElement = config.get("path");
     if (pathElement == null) {
@@ -190,9 +203,11 @@ public final class Main {
   /**
    * Start running the camera.
    */
+
+  static CameraServer inst ;
   public static VideoSource startCamera(CameraConfig config) {
     System.out.println("Starting camera '" + config.name + "' on " + config.path);
-    CameraServer inst = CameraServer.getInstance();
+    inst = CameraServer.getInstance();
     UsbCamera camera = new UsbCamera(config.name, config.path);
     MjpegServer server = inst.startAutomaticCapture(camera);
 
@@ -246,20 +261,14 @@ public final class Main {
     //Network Table Posting
     NetworkTable table = ntinst.getTable("videoInfo");
     NetworkTableEntry distance;
-<<<<<<< HEAD
-
     NetworkTableEntry targetDisplacement;
-    NetworkTableEntry inputsToTheDriveX;
-
-=======
-    NetworkTableEntry targetDisplacement;
->>>>>>> b13989d7290bca136db6482e799dae539ad17ccd
-    targetDisplacement = table.getEntry("TargetDisplacement");
-    distance = table.getEntry("Target Distance Width");
-    inputsToTheDriveX = table.getEntry("Input to the Drive");
     NetworkTableEntry distanceHeight = table.getEntry("Target Distance Height");
     NetworkTableEntry AvgDistance = table.getEntry("Avg. Distance");
     NetworkTableEntry AvgDistanceInCm = table.getEntry("Avg. Distance in cm");
+
+    targetDisplacement = table.getEntry("TargetDisplacement");
+    distance = table.getEntry("Target Distance Width");
+        
 
     // start cameras
     List<VideoSource> cameras = new ArrayList<>();
@@ -267,32 +276,23 @@ public final class Main {
       cameras.add(startCamera(cameraConfig));
       System.out.println(CameraWidth);
     }
+
+    
     // start image processing on camera 0 if present
     if (cameras.size() >= 1) {
       VisionThread visionThread = new VisionThread(cameras.get(0),
               new RedTapeThree(), pipeline -> {
         if (!pipeline.filterContoursOutput().isEmpty() & pipeline.filterContoursOutput().size()==2) {
           Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
-          Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
+          Rect r2 = Imgproc.boundingRect(pipeline.findContoursOutput().get(1));
           targetDisplacement.setValue(((r.x + (r.width / 2))-(CameraWidth)/2)+(r2.x + (r2.width / 2))-(CameraWidth)/2);
-<<<<<<< HEAD
-          inputsToTheDriveX.setValue(r.width-(CameraWidth/2)/(CameraWidth/2));//added New
           distance.setValue((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5/2)));
           distanceHeight.setValue((5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5/2)));
           AvgDistance.setValue(((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5/2))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2);
           AvgDistanceInCm.setValue((((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5/2))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2)*30.4);
-          SmartDashboard.putString("Found", "Rect Found");
+          SmartDashboard.putString("Found", "Rect Found");  
         }else {
           SmartDashboard.putString("Found", "Not Found");
-=======
-          distance.setValue((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5)));
-          distanceHeight.setValue((5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)));
-          AvgDistance.setValue(((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2);
-          AvgDistanceInCm.setValue((((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2)*30.4);
-          SmartDashboard.putString("Target Found", "Yes");
-        }else {
-          SmartDashboard.putString("Target Found", "No");
->>>>>>> b13989d7290bca136db6482e799dae539ad17ccd
           targetDisplacement.setValue(0);
           distance.setValue(-1);
         }
@@ -308,5 +308,6 @@ public final class Main {
         return;
       }
     }
+    
   }
 }
