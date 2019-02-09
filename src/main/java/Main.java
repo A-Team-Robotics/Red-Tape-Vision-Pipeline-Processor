@@ -246,14 +246,8 @@ public final class Main {
     //Network Table Posting
     NetworkTable table = ntinst.getTable("videoInfo");
     NetworkTableEntry distance;
-<<<<<<< HEAD
-
     NetworkTableEntry targetDisplacement;
     NetworkTableEntry inputsToTheDriveX;
-
-=======
-    NetworkTableEntry targetDisplacement;
->>>>>>> b13989d7290bca136db6482e799dae539ad17ccd
     targetDisplacement = table.getEntry("TargetDisplacement");
     distance = table.getEntry("Target Distance Width");
     inputsToTheDriveX = table.getEntry("Input to the Drive");
@@ -275,7 +269,6 @@ public final class Main {
           Rect r = Imgproc.boundingRect(pipeline.filterContoursOutput().get(0));
           Rect r2 = Imgproc.boundingRect(pipeline.filterContoursOutput().get(1));
           targetDisplacement.setValue(((r.x + (r.width / 2))-(CameraWidth)/2)+(r2.x + (r2.width / 2))-(CameraWidth)/2);
-<<<<<<< HEAD
           inputsToTheDriveX.setValue(r.width-(CameraWidth/2)/(CameraWidth/2));//added New
           distance.setValue((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5/2)));
           distanceHeight.setValue((5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5/2)));
@@ -284,15 +277,6 @@ public final class Main {
           SmartDashboard.putString("Found", "Rect Found");
         }else {
           SmartDashboard.putString("Found", "Not Found");
-=======
-          distance.setValue((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5)));
-          distanceHeight.setValue((5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)));
-          AvgDistance.setValue(((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2);
-          AvgDistanceInCm.setValue((((10.15/12)*CameraWidth/(2*r.width*Math.tan(68.5))+(5.5/12)*CameraHeight/(2*r.height*Math.tan(68.5)))/2)*30.4);
-          SmartDashboard.putString("Target Found", "Yes");
-        }else {
-          SmartDashboard.putString("Target Found", "No");
->>>>>>> b13989d7290bca136db6482e799dae539ad17ccd
           targetDisplacement.setValue(0);
           distance.setValue(-1);
         }
